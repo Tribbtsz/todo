@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { useTaskStore } from '../stores/taskStore';
 import SubtaskList from './SubtaskList.vue';
 import type { Task } from '../types';
@@ -12,6 +12,11 @@ const taskStore = useTaskStore();
 const isEditing = ref(false);
 const showSubtasks = ref(false);
 const editingTitle = ref('');
+
+// 新增：用于记录删除按钮点击次数和定时器
+const deleteClickCount = ref(0);
+const deleteTip = ref('');
+const deleteBtnRef = ref<HTMLButtonElement | null>(null);
 
 const toggleSubtasks = () => {
   showSubtasks.value = !showSubtasks.value;
@@ -36,9 +41,20 @@ const cancelEditing = () => {
   isEditing.value = false;
 };
 
+const resetDeleteState = () => {
+  deleteClickCount.value = 0;
+};
+
 const deleteTask = () => {
-  if (confirm('Are you sure you want to delete this task?')) {
+  if (deleteClickCount.value < 2) {
+    deleteClickCount.value += 1;
+    // 聚焦按钮，确保可以监听blur
+    nextTick(() => {
+      deleteBtnRef.value?.focus();
+    });
+  } else {
     taskStore.deleteTask(props.task.id);
+    deleteClickCount.value = 0;
   }
 };
 
@@ -72,11 +88,24 @@ const progress = computed(() => {
           v-focus
         />
         <div class="task-actions">
-          <button class="btn-icon" @click="deleteTask" title="Delete task">
+          <button
+            class="btn-icon"
+            :class="{
+              'delete-yellow': deleteClickCount === 1,
+              'delete-red': deleteClickCount === 2
+            }"
+            @click="deleteTask"
+            @blur="resetDeleteState"
+            ref="deleteBtnRef"
+            title="Delete task"
+            tabindex="0"
+          >
             <span class="icon">🗑️</span>
           </button>
         </div>
       </div>
+      <!-- 新增：删除提示 -->
+      <div v-if="deleteTip" class="delete-tip">{{ deleteTip }}</div>
       
       <div v-if="task.subtasks.length > 0" class="task-details">
         <div class="progress-container">
@@ -105,15 +134,22 @@ const progress = computed(() => {
 .task-card {
   background-color: var(--color-card-bg);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-sm); */
   margin-bottom: var(--spacing-3);
   transition: all 0.2s ease;
   cursor: grab;
   width: 100%; /* 确保卡片宽度固定 */
 }
 
+/* 新增：删除提示样式 */
+.delete-tip {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
 .task-card:hover {
-  box-shadow: var(--shadow-md);
+  /* box-shadow: var(--shadow-md); */
   background-color: #333333;
 }
 
@@ -215,5 +251,15 @@ const progress = computed(() => {
   margin-top: var(--spacing-3);
   padding-top: var(--spacing-3);
   border-top: 1px solid var(--color-border);
+}
+
+/* 新增：删除按钮变色样式 */
+.delete-yellow {
+  background-color: #ff9500 !important;
+  color: #333 !important;
+}
+.delete-red {
+  background-color: #ff0000 !important;
+  color: #fff !important;
 }
 </style>
