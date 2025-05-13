@@ -35,7 +35,7 @@ const handleNewTask = (title: string) => {
       />
       
       <KanbanColumn 
-        title="IN PROGRESS" 
+        title="WIP" 
         status="WIP" 
         :tasks="wipTasks" 
         @update="handleColumnUpdate"
@@ -54,19 +54,9 @@ const handleNewTask = (title: string) => {
 <style scoped>
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(3, 350px); /* 固定每列宽度为350px */
+  grid-template-columns: repeat(3, 350px);
   gap: var(--spacing-4);
-  margin-top: var(--spacing-6);
-  justify-content: center; /* 居中显示 */
-  max-width: 1100px; /* 限制最大宽度 */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-@media (max-width: 1100px) {
-  .kanban-board {
-    grid-template-columns: repeat(auto-fit, 350px);
-    justify-content: center;
-  }
+  padding: var(--spacing-4);  /* 添加内边距 */
+  margin-bottom: var(--spacing-8);  /* 添加底部边距 */
 }
 </style>

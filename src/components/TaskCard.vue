@@ -26,6 +26,10 @@ const toggleSubtasks = () => {
 const startEditing = () => {
   editingTitle.value = props.task.title;
   isEditing.value = true;
+  // 在编辑开始时调整文本框高度
+  nextTick(() => {
+    resizeEditTextarea();
+  });
 };
 
 // 保存任务
@@ -76,23 +80,25 @@ const resizeEditTextarea = () => {
   nextTick(() => {
     const el = titleInput.value;
     if (el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
     }
   });
 };
 
 // 格式化任务标题显示
 const formattedTitle = computed(() => {
-  const lines = props.task.title.split('\n');
-  return lines.map((line, index) => {
-    if (index === 0) return line;
-    return line.startsWith('  - ') ? line : `  - ${line}`;
-  }).join('\n');
+  const lines = props.task.title.split("\n");
+  return lines
+    .map((line, index) => {
+      if (index === 0) return line;
+      return line.startsWith("  - ") ? line : `  - ${line}`;
+    })
+    .join("\n");
 });
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
+  if (e.key === "Enter") {
     if (e.ctrlKey || e.shiftKey) {
       const textarea = e.target as HTMLTextAreaElement;
       const start = textarea.selectionStart ?? 0;
@@ -101,10 +107,10 @@ const handleKeydown = (e: KeyboardEvent) => {
 
       // 判断当前光标是否在第一行
       const beforeCursor = value.slice(0, start);
-      const lines = beforeCursor.split('\n');
-      let insertText = '\n';
+      const lines = beforeCursor.split("\n");
+      let insertText = "\n";
       if (lines.length > 1 || start !== 0) {
-        insertText = '\n  - ';
+        insertText = "\n  - ";
       }
 
       editingTitle.value = value.slice(0, start) + insertText + value.slice(end);
@@ -129,9 +135,9 @@ const handleKeydown = (e: KeyboardEvent) => {
     <div class="task-content">
       <div class="task-header">
         <!-- 非编辑状态：显示格式化的标题 -->
-        <pre v-if="!isEditing" 
-             @dblclick="startEditing" 
-             class="task-title-display">{{ formattedTitle }}</pre>
+        <pre v-if="!isEditing" @dblclick="startEditing" class="task-title-display">{{
+          formattedTitle
+        }}</pre>
         <!-- 编辑状态：使用 textarea -->
         <textarea
           v-else
@@ -141,8 +147,7 @@ const handleKeydown = (e: KeyboardEvent) => {
           @blur="cancelEditing"
           @input="resizeEditTextarea"
           ref="titleInput"
-          v-focus
-        ></textarea>
+          v-focus></textarea>
         <div class="task-actions">
           <button
             class="btn-icon"
@@ -207,8 +212,8 @@ const handleKeydown = (e: KeyboardEvent) => {
 .task-header {
   display: flex;
   justify-content: flex-start; /* 水平靠左 */
-  align-items: center;         /* 垂直居中 */
-  padding-left: 12px;          /* 左边距，可根据需要调整 */
+  align-items: center; /* 垂直居中 */
+  padding-left: 12px; /* 左边距，可根据需要调整 */
 }
 
 .task-header h3 {
@@ -216,19 +221,19 @@ const handleKeydown = (e: KeyboardEvent) => {
   font-weight: 500;
   word-break: break-word;
   margin-right: var(--spacing-2);
-  margin-left: 0;              /* 避免多余左边距 */
+  margin-left: 0; /* 避免多余左边距 */
   cursor: text;
   flex: 1;
-  text-align: left;            /* 水平靠左 */
+  text-align: left; /* 水平靠左 */
   display: flex;
-  align-items: center;         /* 垂直居中 */
+  align-items: center; /* 垂直居中 */
   height: 100%;
 }
 
 .task-title-display {
   font-size: 1rem;
   font-weight: 500;
-  margin: 0; 
+  margin: 0;
   background: none;
   border: none;
   white-space: pre-wrap;
@@ -237,17 +242,17 @@ const handleKeydown = (e: KeyboardEvent) => {
   cursor: text;
   flex: 1;
   margin-right: var(--spacing-2);
-  text-align: left;  /* 确保文字左对齐 */
-  line-height: 1.5;  /* 添加行高 */
-  min-height: 24px;  /* 确保最小高度 */
-  display: block;    /* 改为块级显示 */
+  text-align: left; /* 确保文字左对齐 */
+  line-height: 1.5; /* 添加行高 */
+  min-height: 24px; /* 确保最小高度 */
+  display: block; /* 改为块级显示 */
 }
 
 .edit-title-input {
   flex: 1;
   font-size: 1rem;
   font-weight: 500;
-  padding: var(--spacing-2) var(--spacing-3);  /* 与显示状态保持一致的内边距 */
+  padding: var(--spacing-2) var(--spacing-3); /* 与显示状态保持一致的内边距 */
   margin-right: var(--spacing-2);
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
@@ -258,14 +263,15 @@ const handleKeydown = (e: KeyboardEvent) => {
   min-height: 24px;
   width: 100%;
   font-family: inherit;
-  line-height: 1.5;  /* 与显示状态保持一致的行高 */
+  line-height: 1.5; /* 与显示状态保持一致的行高 */
+  white-space: pre-wrap; /* 添加这行确保换行符正确显示 */
 }
 
 .task-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: var(--spacing-2);  /* 统一内边距 */
+  padding: var(--spacing-2); /* 统一内边距 */
 }
 
 .task-actions {

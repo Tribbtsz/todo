@@ -1,50 +1,58 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import draggable from 'vuedraggable';
-import TaskCard from './TaskCard.vue';
-import type { Task } from '../types';
+import { computed } from "vue";
+import draggable from "vuedraggable";
+import TaskCard from "./TaskCard.vue";
+import type { Task } from "../types";
 
 const props = defineProps<{
   title: string;
-  status: 'TODO' | 'WIP' | 'DONE';
+  status: "TODO" | "WIP" | "DONE";
   tasks: Task[];
 }>();
 
 const emit = defineEmits<{
-  'update': [status: 'TODO' | 'WIP' | 'DONE', tasks: Task[]];
+  update: [status: "TODO" | "WIP" | "DONE", tasks: Task[]];
 }>();
 
 // Compute the column's style based on its status
 const columnStyle = computed(() => {
   switch (props.status) {
-    case 'TODO':
-      return { '--column-color': 'var(--color-primary)' };
-    case 'WIP':
-      return { '--column-color': 'var(--color-wip)' };
-    case 'DONE':
-      return { '--column-color': 'var(--color-done)' };
+    case "TODO":
+      return { "--column-color": "var(--color-primary)" };
+    case "WIP":
+      return { "--column-color": "var(--color-wip)" };
+    case "DONE":
+      return { "--column-color": "var(--color-done)" };
     default:
-      return { '--column-color': 'var(--color-primary)' };
+      return { "--column-color": "var(--color-primary)" };
   }
 });
 
 // Handle changes to the task list (due to dragging)
 const handleChange = (event: any) => {
-  emit('update', props.status, [...event.moved ? props.tasks : event.added?.element ? [
-    ...props.tasks.slice(0, event.added.newIndex),
-    { ...event.added.element, status: props.status },
-    ...props.tasks.slice(event.added.newIndex)
-  ].filter((t): t is Task => !!t) : props.tasks]);
+  emit("update", props.status, [
+    ...(event.moved
+      ? props.tasks
+      : event.added?.element
+      ? [
+          ...props.tasks.slice(0, event.added.newIndex),
+          { ...event.added.element, status: props.status },
+          ...props.tasks.slice(event.added.newIndex),
+        ].filter((t): t is Task => !!t)
+      : props.tasks),
+  ]);
 };
 </script>
 
 <template>
   <div class="kanban-column" :style="columnStyle">
     <div class="column-header">
-      <h2>{{ title }}</h2>
-      <div class="task-count">{{ tasks.length }}</div>
+      <h2>
+        {{ title }}
+        <text class="task-count">{{ tasks.length }}</text>
+      </h2>
     </div>
-    
+
     <draggable
       :list="tasks"
       class="task-list"
@@ -52,8 +60,7 @@ const handleChange = (event: any) => {
       ghost-class="ghost-task"
       animation="300"
       @change="handleChange"
-      item-key="id"
-    >
+      item-key="id">
       <template #item="{ element: task }">
         <TaskCard :task="task" />
       </template>
@@ -68,60 +75,29 @@ const handleChange = (event: any) => {
   border-top: 4px solid var(--column-color);
   box-shadow: var(--shadow-sm);
   display: flex;
+  padding-top: var(--spacing-3);
   flex-direction: column;
-  height: calc(100vh - 200px);
-  max-height: 800px;
-  overflow-y: hidden;
-  width: 100%; /* 确保列宽度固定 */
+  width: 100%;
+  min-height: 400px;
 }
 
 .column-header {
-  padding: var(--spacing-4);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.column-header h2 {
-  font-size: 1rem;
-  font-weight: 600;
   color: var(--column-color);
+  margin: 5px 0;
 }
 
 .task-count {
-  background-color: var(--column-color);
-  color: #121212;
-  border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  background-color: #3d3c3cbb;
+  padding: 0 8px;
+  border-radius: 2px;
+  font-size: 20px;
+  color: var(--column-color);
+  margin-left: 4px;
 }
 
 .task-list {
   flex: 1;
-  overflow-y: auto;
   padding: var(--spacing-2);
-}
-
-.ghost-task {
-  opacity: 0.5;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px dashed var(--column-color);
-}
-
-/* Scrollbar styling */
-.task-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.task-list::-webkit-scrollbar-track {
-  background: var(--color-surface);
-}
-
-.task-list::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
 }
 
 .task-list::-webkit-scrollbar-thumb:hover {
