@@ -54,14 +54,19 @@ const handleNewTask = (title: string) => {
 <style scoped>
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 350px); /* 固定每列宽度为350px */
   gap: var(--spacing-4);
   margin-top: var(--spacing-6);
+  justify-content: center; /* 居中显示 */
+  max-width: 1100px; /* 限制最大宽度 */
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 1100px) {
   .kanban-board {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, 350px);
+    justify-content: center;
   }
 }
 </style>

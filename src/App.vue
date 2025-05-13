@@ -23,17 +23,29 @@ onMounted(() => {
 
 <style>
 :root {
-  --color-bg: #f5f7fa;
-  --color-text: #333;
-  --color-primary: #3b82f6;
-  --color-wip: #f59e0b;
-  --color-done: #10b981;
-  --color-border: #e2e8f0;
-  --color-card-bg: #fff;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Material 暗色主题颜色 */
+  --color-bg: #121212;
+  --color-surface: #1e1e1e;
+  --color-text: #e0e0e0;
+  --color-text-secondary: #a0a0a0;
+  --color-primary: #bb86fc;
+  --color-primary-variant: #3700b3;
+  --color-wip: #03dac6;
+  --color-done: #4caf50;
+  --color-error: #cf6679;
+  --color-border: #333333;
+  --color-card-bg: #2d2d2d;
+  --color-hover: rgba(255, 255, 255, 0.08);
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
+  
+  /* 圆角 */
   --radius-sm: 4px;
   --radius-md: 8px;
+  
+  /* 间距 */
   --spacing-1: 4px;
   --spacing-2: 8px;
   --spacing-3: 12px;
@@ -49,7 +61,7 @@ onMounted(() => {
 }
 
 body {
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+  font-family: 'Roboto', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 
     'Helvetica Neue', Arial, sans-serif;
   line-height: 1.5;
   background-color: var(--color-bg);
@@ -69,7 +81,7 @@ header {
 
 h1 {
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: var(--spacing-4);
   color: var(--color-primary);
 }
@@ -86,24 +98,25 @@ button {
 
 .btn-primary {
   background-color: var(--color-primary);
-  color: white;
+  color: #121212;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  background-color: var(--color-primary-variant);
+  color: white;
 }
 
 .btn-secondary {
-  background-color: #e2e8f0;
-  color: #4b5563;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text);
 }
 
 .btn-secondary:hover {
-  background-color: #d1d5db;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .btn-danger {
-  background-color: #ef4444;
+  background-color: var(--color-error);
   color: white;
 }
 
@@ -118,6 +131,8 @@ input, textarea {
   border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.875rem;
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 input:focus, textarea:focus {

@@ -63,7 +63,7 @@ const handleChange = (event: any) => {
 
 <style scoped>
 .kanban-column {
-  background-color: #f8fafc;
+  background-color: var(--color-surface);
   border-radius: var(--radius-md);
   border-top: 4px solid var(--column-color);
   box-shadow: var(--shadow-sm);
@@ -72,6 +72,7 @@ const handleChange = (event: any) => {
   height: calc(100vh - 200px);
   max-height: 800px;
   overflow-y: hidden;
+  width: 100%; /* 确保列宽度固定 */
 }
 
 .column-header {
@@ -90,7 +91,7 @@ const handleChange = (event: any) => {
 
 .task-count {
   background-color: var(--column-color);
-  color: white;
+  color: #121212;
   border-radius: 999px;
   padding: 2px 8px;
   font-size: 0.75rem;
@@ -105,7 +106,7 @@ const handleChange = (event: any) => {
 
 .ghost-task {
   opacity: 0.5;
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
   border: 2px dashed var(--column-color);
 }
 
@@ -115,15 +116,15 @@ const handleChange = (event: any) => {
 }
 
 .task-list::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-surface);
 }
 
 .task-list::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 20px;
 }
 
 .task-list::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: rgba(255, 255, 255, 0.3);
 }
 </style>

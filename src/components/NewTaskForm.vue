@@ -30,6 +30,9 @@ const createTask = () => {
 <style scoped>
 .new-task-container {
   margin-bottom: var(--spacing-6);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .new-task-input {
@@ -39,14 +42,16 @@ const createTask = () => {
   border-radius: var(--radius-md);
   font-size: 1rem;
   transition: all 0.2s ease;
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 .new-task-input:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
 }
 
 .new-task-input::placeholder {
-  color: #94a3b8;
+  color: var(--color-text-secondary);
 }
 </style>

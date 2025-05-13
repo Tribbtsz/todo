@@ -135,11 +135,12 @@ const deleteSubtask = (subtaskId: string) => {
 
 .subtask-checkbox {
   margin-right: var(--spacing-2);
+  accent-color: var(--color-primary);
 }
 
 .completed {
   text-decoration: line-through;
-  color: #94a3b8;
+  color: var(--color-text-secondary);
 }
 
 .subtask-actions {
@@ -159,6 +160,8 @@ const deleteSubtask = (subtaskId: string) => {
 
 .subtask-edit input {
   margin-bottom: var(--spacing-2);
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 .subtask-edit-actions {

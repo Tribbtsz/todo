@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue';
 import { useTaskStore } from '../stores/taskStore';
 import SubtaskList from './SubtaskList.vue';
-import TaskForm from './TaskForm.vue';
 import type { Task } from '../types';
 
 const props = defineProps<{
@@ -12,21 +11,28 @@ const props = defineProps<{
 const taskStore = useTaskStore();
 const isEditing = ref(false);
 const showSubtasks = ref(false);
+const editingTitle = ref('');
 
 const toggleSubtasks = () => {
   showSubtasks.value = !showSubtasks.value;
 };
 
+// 双击开始编辑
 const startEditing = () => {
+  editingTitle.value = props.task.title;
   isEditing.value = true;
 };
 
-const cancelEditing = () => {
-  isEditing.value = false;
+// 保存任务
+const saveTask = () => {
+  if (editingTitle.value.trim()) {
+    taskStore.updateTask(props.task.id, { title: editingTitle.value.trim() });
+    isEditing.value = false;
+  }
 };
 
-const saveTask = (updatedTask: Partial<Task>) => {
-  taskStore.updateTask(props.task.id, updatedTask);
+// 取消编辑
+const cancelEditing = () => {
   isEditing.value = false;
 };
 
@@ -50,13 +56,22 @@ const progress = computed(() => {
 
 <template>
   <div class="task-card">
-    <div v-if="!isEditing" class="task-content">
+    <div class="task-content">
       <div class="task-header">
-        <h3>{{ task.title }}</h3>
+        <!-- 双击标题区域开始编辑 -->
+        <h3 v-if="!isEditing" @dblclick="startEditing">{{ task.title }}</h3>
+        <!-- 编辑状态下显示输入框 -->
+        <input
+          v-else
+          v-model="editingTitle"
+          type="text"
+          class="edit-title-input"
+          @keyup.enter="saveTask"
+          @blur="cancelEditing"
+          ref="titleInput"
+          v-focus
+        />
         <div class="task-actions">
-          <button class="btn-icon" @click="startEditing" title="Edit task">
-            <span class="icon">✏️</span>
-          </button>
           <button class="btn-icon" @click="deleteTask" title="Delete task">
             <span class="icon">🗑️</span>
           </button>
@@ -83,13 +98,6 @@ const progress = computed(() => {
         />
       </div>
     </div>
-    
-    <TaskForm
-      v-else
-      :task="task"
-      @save="saveTask"
-      @cancel="cancelEditing"
-    />
   </div>
 </template>
 
@@ -101,10 +109,12 @@ const progress = computed(() => {
   margin-bottom: var(--spacing-3);
   transition: all 0.2s ease;
   cursor: grab;
+  width: 100%; /* 确保卡片宽度固定 */
 }
 
 .task-card:hover {
   box-shadow: var(--shadow-md);
+  background-color: #333333;
 }
 
 .task-content {
@@ -123,6 +133,20 @@ const progress = computed(() => {
   font-weight: 500;
   word-break: break-word;
   margin-right: var(--spacing-2);
+  cursor: text; /* 提示用户可以编辑 */
+  flex: 1;
+}
+
+.edit-title-input {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: var(--spacing-1);
+  margin-right: var(--spacing-2);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 
 .task-actions {
@@ -142,10 +166,11 @@ const progress = computed(() => {
   cursor: pointer;
   padding: var(--spacing-1);
   border-radius: var(--radius-sm);
+  color: var(--color-text);
 }
 
 .btn-icon:hover {
-  background-color: #f1f5f9;
+  background-color: var(--color-hover);
 }
 
 .icon {
@@ -158,7 +183,7 @@ const progress = computed(() => {
 
 .progress-container {
   height: 4px;
-  background-color: #e2e8f0;
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
   overflow: hidden;
   margin-bottom: var(--spacing-2);
@@ -172,7 +197,7 @@ const progress = computed(() => {
 
 .subtask-summary {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--color-text-secondary);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -182,7 +207,7 @@ const progress = computed(() => {
   font-size: 0.75rem;
   padding: var(--spacing-1) var(--spacing-2);
   color: var(--color-primary);
-  background-color: #e0e7ff;
+  background-color: rgba(187, 134, 252, 0.1);
   border-radius: var(--radius-sm);
 }
 
