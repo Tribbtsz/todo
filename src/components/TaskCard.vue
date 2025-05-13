@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
-import { useTaskStore } from '../stores/taskStore';
-import SubtaskList from './SubtaskList.vue';
-import type { Task } from '../types';
+import { ref, computed, nextTick } from "vue";
+import { useTaskStore } from "../stores/taskStore";
+import SubtaskList from "./SubtaskList.vue";
+import type { Task } from "../types";
 
 const props = defineProps<{
   task: Task;
@@ -11,11 +11,11 @@ const props = defineProps<{
 const taskStore = useTaskStore();
 const isEditing = ref(false);
 const showSubtasks = ref(false);
-const editingTitle = ref('');
+const editingTitle = ref("");
 
 // 新增：用于记录删除按钮点击次数和定时器
 const deleteClickCount = ref(0);
-const deleteTip = ref('');
+const deleteTip = ref("");
 const deleteBtnRef = ref<HTMLButtonElement | null>(null);
 
 const toggleSubtasks = () => {
@@ -68,63 +68,116 @@ const progress = computed(() => {
   const completedCount = props.task.subtasks.filter(st => st.completed).length;
   return Math.round((completedCount / props.task.subtasks.length) * 100);
 });
+
+const titleInput = ref<HTMLTextAreaElement | null>(null);
+
+// 调整编辑框大小
+const resizeEditTextarea = () => {
+  nextTick(() => {
+    const el = titleInput.value;
+    if (el) {
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+  });
+};
+
+// 格式化任务标题显示
+const formattedTitle = computed(() => {
+  const lines = props.task.title.split('\n');
+  return lines.map((line, index) => {
+    if (index === 0) return line;
+    return line.startsWith('  - ') ? line : `  - ${line}`;
+  }).join('\n');
+});
+
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter') {
+    if (e.ctrlKey || e.shiftKey) {
+      const textarea = e.target as HTMLTextAreaElement;
+      const start = textarea.selectionStart ?? 0;
+      const end = textarea.selectionEnd ?? 0;
+      const value = editingTitle.value;
+
+      // 判断当前光标是否在第一行
+      const beforeCursor = value.slice(0, start);
+      const lines = beforeCursor.split('\n');
+      let insertText = '\n';
+      if (lines.length > 1 || start !== 0) {
+        insertText = '\n  - ';
+      }
+
+      editingTitle.value = value.slice(0, start) + insertText + value.slice(end);
+
+      // 光标移动到新插入内容后
+      nextTick(() => {
+        const pos = start + insertText.length;
+        textarea.selectionStart = textarea.selectionEnd = pos;
+        resizeEditTextarea();
+      });
+      e.preventDefault();
+    } else {
+      saveTask();
+      e.preventDefault();
+    }
+  }
+};
 </script>
 
 <template>
   <div class="task-card">
     <div class="task-content">
       <div class="task-header">
-        <!-- 双击标题区域开始编辑 -->
-        <h3 v-if="!isEditing" @dblclick="startEditing">{{ task.title }}</h3>
-        <!-- 编辑状态下显示输入框 -->
-        <input
+        <!-- 非编辑状态：显示格式化的标题 -->
+        <pre v-if="!isEditing" 
+             @dblclick="startEditing" 
+             class="task-title-display">{{ formattedTitle }}</pre>
+        <!-- 编辑状态：使用 textarea -->
+        <textarea
           v-else
           v-model="editingTitle"
-          type="text"
           class="edit-title-input"
-          @keyup.enter="saveTask"
+          @keydown="handleKeydown"
           @blur="cancelEditing"
+          @input="resizeEditTextarea"
           ref="titleInput"
           v-focus
-        />
+        ></textarea>
         <div class="task-actions">
           <button
             class="btn-icon"
             :class="{
               'delete-yellow': deleteClickCount === 1,
-              'delete-red': deleteClickCount === 2
+              'delete-red': deleteClickCount === 2,
             }"
             @click="deleteTask"
             @blur="resetDeleteState"
             ref="deleteBtnRef"
             title="Delete task"
-            tabindex="0"
-          >
+            tabindex="0">
             <span class="icon">🗑️</span>
           </button>
         </div>
       </div>
       <!-- 新增：删除提示 -->
       <div v-if="deleteTip" class="delete-tip">{{ deleteTip }}</div>
-      
+
       <div v-if="task.subtasks.length > 0" class="task-details">
         <div class="progress-container">
           <div class="progress-bar" :style="`width: ${progress}%`"></div>
         </div>
         <div class="subtask-summary">
-          <span>{{ task.subtasks.filter(s => s.completed).length }}/{{ task.subtasks.length }} subtasks</span>
+          <span>
+            {{ task.subtasks.filter(s => s.completed).length }}/{{ task.subtasks.length }} subtasks
+          </span>
           <button class="btn-toggle" @click="toggleSubtasks">
-            {{ showSubtasks ? 'Hide' : 'Show' }}
+            {{ showSubtasks ? "Hide" : "Show" }}
           </button>
         </div>
       </div>
-      
+
       <div v-if="showSubtasks" class="subtask-container">
-        <SubtaskList 
-          :task-id="task.id" 
-          :subtasks="task.subtasks" 
-          @add-subtask="addSubtask"
-        />
+        <SubtaskList :task-id="task.id" :subtasks="task.subtasks" @add-subtask="addSubtask" />
       </div>
     </div>
   </div>
@@ -133,10 +186,9 @@ const progress = computed(() => {
 <style scoped>
 .task-card {
   background-color: var(--color-card-bg);
-  border-radius: var(--radius-md);
-  /* box-shadow: var(--shadow-sm); */
+  border-radius: var(--radius-sm);
   margin-bottom: var(--spacing-3);
-  transition: all 0.2s ease;
+  transition: all 1s ease;
   cursor: grab;
   width: 100%; /* 确保卡片宽度固定 */
 }
@@ -148,20 +200,15 @@ const progress = computed(() => {
   margin-top: 4px;
 }
 
-.task-card:hover {
-  /* box-shadow: var(--shadow-md); */
-  background-color: #333333;
-}
-
 .task-content {
-  padding: var(--spacing-3);
+  padding: var(--spacing-2);
 }
 
 .task-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--spacing-2);
+  justify-content: flex-start; /* 水平靠左 */
+  align-items: center;         /* 垂直居中 */
+  padding-left: 12px;          /* 左边距，可根据需要调整 */
 }
 
 .task-header h3 {
@@ -169,32 +216,68 @@ const progress = computed(() => {
   font-weight: 500;
   word-break: break-word;
   margin-right: var(--spacing-2);
-  cursor: text; /* 提示用户可以编辑 */
+  margin-left: 0;              /* 避免多余左边距 */
+  cursor: text;
   flex: 1;
+  text-align: left;            /* 水平靠左 */
+  display: flex;
+  align-items: center;         /* 垂直居中 */
+  height: 100%;
+}
+
+.task-title-display {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0; 
+  background: none;
+  border: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  cursor: text;
+  flex: 1;
+  margin-right: var(--spacing-2);
+  text-align: left;  /* 确保文字左对齐 */
+  line-height: 1.5;  /* 添加行高 */
+  min-height: 24px;  /* 确保最小高度 */
+  display: block;    /* 改为块级显示 */
 }
 
 .edit-title-input {
   flex: 1;
   font-size: 1rem;
   font-weight: 500;
-  padding: var(--spacing-1);
+  padding: var(--spacing-2) var(--spacing-3);  /* 与显示状态保持一致的内边距 */
   margin-right: var(--spacing-2);
   border: 1px solid var(--color-primary);
   border-radius: var(--radius-sm);
   background-color: var(--color-surface);
   color: var(--color-text);
+  resize: none;
+  overflow: hidden;
+  min-height: 24px;
+  width: 100%;
+  font-family: inherit;
+  line-height: 1.5;  /* 与显示状态保持一致的行高 */
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--spacing-2);  /* 统一内边距 */
 }
 
 .task-actions {
   display: flex;
   gap: var(--spacing-1);
   opacity: 0.5;
-  transition: opacity 0.2s ease;
+  transition: opacity 1s ease;
 }
 
-.task-card:hover .task-actions {
+/* .task-card:hover .task-actions {
   opacity: 1;
-}
+} */
 
 .btn-icon {
   background: none;
@@ -220,7 +303,7 @@ const progress = computed(() => {
 .progress-container {
   height: 4px;
   background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: 1px;
   overflow: hidden;
   margin-bottom: var(--spacing-2);
 }
@@ -228,7 +311,7 @@ const progress = computed(() => {
 .progress-bar {
   height: 100%;
   background-color: var(--color-primary);
-  transition: width 0.3s ease;
+  transition: width 1s ease;
 }
 
 .subtask-summary {
