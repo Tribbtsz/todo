@@ -158,7 +158,7 @@ const handleKeydown = (e: KeyboardEvent) => {
             @click="deleteTask"
             @blur="resetDeleteState"
             ref="deleteBtnRef"
-            title="Delete task"
+            title="Triple click to delete task"
             tabindex="0">
             <span class="icon">🗑️</span>
           </button>
@@ -336,17 +336,12 @@ const handleKeydown = (e: KeyboardEvent) => {
   border-radius: var(--radius-sm);
 }
 
-.subtask-container {
-  margin-top: var(--spacing-3);
-  padding-top: var(--spacing-3);
-  border-top: 1px solid var(--color-border);
-}
-
 /* 新增：删除按钮变色样式 */
 .delete-yellow {
   background-color: #ff9500 !important;
   color: #333 !important;
 }
+
 .delete-red {
   background-color: #ff0000 !important;
   color: #fff !important;

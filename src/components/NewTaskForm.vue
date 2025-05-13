@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick } from "vue";
 
 const emit = defineEmits<{
-  'create-task': [title: string];
+  "create-task": [title: string];
 }>();
 
-const newTaskTitle = ref('');
+const newTaskTitle = ref("");
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 const resizeTextarea = () => {
   nextTick(() => {
     const el = textareaRef.value;
     if (el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
     }
   });
 };
 
 // 处理键盘事件
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter') {
+  if (e.key === "Enter") {
     if (e.ctrlKey || e.shiftKey) {
       const textarea = e.target as HTMLTextAreaElement;
       const start = textarea.selectionStart ?? 0;
@@ -28,10 +28,10 @@ const handleKeydown = (e: KeyboardEvent) => {
       const value = newTaskTitle.value;
 
       const beforeCursor = value.slice(0, start);
-      const lines = beforeCursor.split('\n');
-      let insertText = '\n';
+      const lines = beforeCursor.split("\n");
+      let insertText = "\n";
       if (lines.length > 1 || start !== 0) {
-        insertText = '\n  - ';
+        insertText = "\n  - ";
       }
 
       newTaskTitle.value = value.slice(0, start) + insertText + value.slice(end);
@@ -51,8 +51,8 @@ const handleKeydown = (e: KeyboardEvent) => {
 
 const createTask = () => {
   if (newTaskTitle.value.trim()) {
-    emit('create-task', newTaskTitle.value.trim());
-    newTaskTitle.value = '';
+    emit("create-task", newTaskTitle.value.trim());
+    newTaskTitle.value = "";
     resizeTextarea();
   }
 };
@@ -63,13 +63,12 @@ const createTask = () => {
     <textarea
       ref="textareaRef"
       v-model="newTaskTitle"
-      placeholder="第一行为标题，Ctrl+Enter/Shift+Enter 换行自动添加子项（- ）"
+      placeholder="The first line is the title, use Ctrl+Enter/Shift+Enter to add sub-items automatically."
       class="new-task-input"
       @keydown="handleKeydown"
       @input="resizeTextarea"
       rows="2"
-      style="overflow:hidden;"
-    ></textarea>
+      style="overflow: hidden"></textarea>
   </div>
 </template>
 
